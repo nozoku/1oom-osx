@@ -18,3 +18,7 @@ localtest/
 *.lbx
 1oom-*.tar*
 1oom-*.zip
+
+# macOS and local assistant files (never committed)
+.DS_Store
+.claude/settings.local.json

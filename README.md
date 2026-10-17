@@ -1,3 +1,28 @@
+1oom-osx: macOS port (fork)
+===========================
+
+This repository is a fork of [1oom-fork/1oom](https://github.com/1oom-fork/1oom) whose only goal is a
+working build of 1oom on macOS (Apple Silicon), eventually packaged as an `.app` bundle. It changes build
+glue (configure, Makefiles, bundling scripts), not the game logic.
+
+Please read before using or contributing:
+
+- **Made with AI assistance.** The macOS build work in this fork is done with the help of an AI coding
+  assistant (Claude Code). The upstream project prohibits direct use of AI-generated code (see their note
+  below), so this fork is **not affiliated with, endorsed by or supported by the upstream 1oom authors**,
+  and nothing from here is meant to be submitted upstream. Please report macOS build issues here, not to
+  upstream.
+- **No game files are included.** 1oom is only an engine. The original Master of Orion (1993, v1.3) data
+  files (`*.LBX` etc.) are copyrighted by MicroProse and are **not** part of this repository, of any
+  release, `.app` bundle or ZIP from it. You must own a legal copy (for example the Steam release) and
+  point 1oom at its folder with `-data <path>`.
+- The original README, acknowledgements and the GPLv2 licence ([COPYING](COPYING)) follow unchanged.
+
+---
+
+Upstream README
+===============
+
 This version of the game is no longer in development. Check out the vanilla branch to get an idea of ​​the latest engine version.
 
 1oom
