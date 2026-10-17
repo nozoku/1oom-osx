@@ -8,6 +8,7 @@ bindistzip:
 
 EXTRA_DIST = \
     AUTHORS COPYING HACKING COMPILING NEWS PHILOSOPHY README.md \
+    build-deps_macos.sh \
     make-bindist_install.sh \
     make-bindist_macos.sh \
     make-bindist_msdos.sh \

@@ -58,6 +58,92 @@ if [ -e $APP/Contents/libs/libSDL2-2.0.0.dylib ] && [ ! -e $APP/Contents/libs/li
     fi
 fi
 
+# Replace the Homebrew FluidSynth (links readline, GPL-3) with the one built by
+# build-deps_macos.sh, then drop the libraries nothing references any more.
+FLUIDLIB=deps/fluidsynth/lib/libfluidsynth.3.dylib
+BUNDLED_FLUID=`ls $APP/Contents/libs/libfluidsynth*.dylib 2>/dev/null | head -1`
+if [ -n "$BUNDLED_FLUID" ]; then
+    if [ ! -e $FLUIDLIB ]; then
+        echo Error: $FLUIDLIB not found, run "sh $TOPSRCDIR/build-deps_macos.sh" first
+        exit 1
+    fi
+    cp $FLUIDLIB $BUNDLED_FLUID
+    install_name_tool -id @executable_path/../libs/`basename $BUNDLED_FLUID` $BUNDLED_FLUID 2>/dev/null
+    codesign --force -s - $BUNDLED_FLUID 2>/dev/null
+    # prune: a library stays only while the executable or another library needs it
+    # (otool -L prints a dylib's own install name first; skip that line)
+    while :; do
+        removed=no
+        refs=`otool -L $APP/Contents/MacOS/$EXE | tail -n +2
+              for l in $APP/Contents/libs/*.dylib; do otool -L $l | tail -n +3; done`
+        for lib in $APP/Contents/libs/*.dylib; do
+            name=`basename $lib`
+            case $name in libSDL3.dylib) continue ;; esac
+            if ! echo "$refs" | grep -q "/$name "; then
+                rm -f $lib
+                removed=yes
+            fi
+        done
+        [ $removed = yes ] || break
+    done
+fi
+
+# Licence texts of everything in the bundle (BSD/MIT/zlib require the notice
+# to accompany binary distributions).
+LICDIR=$APP/Contents/Resources/licenses
+mkdir -p $LICDIR
+cp $TOPSRCDIR/COPYING $LICDIR/1oom-COPYING.txt
+cp $TOPSRCDIR/soundfont/README.md $LICDIR/TimGM6mb-README.md
+cp deps/fluidsynth/LICENSE $LICDIR/fluid-synth-LICENSE.txt 2>/dev/null
+for lib in $APP/Contents/libs/*.dylib; do
+    name=`basename $lib`
+    case $name in
+        libSDL2-*) f=sdl2-compat ;;
+        libSDL2_mixer*) f=sdl2_mixer ;;
+        libSDL3*) f=sdl3 ;;
+        libsamplerate*) f=libsamplerate ;;
+        libfluidsynth*) continue ;;
+        libmpg123*) f=mpg123 ;;
+        libvorbis*) f=libvorbis ;;
+        libogg*) f=libogg ;;
+        libFLAC*) f=flac ;;
+        libxmp*) f=libxmp ;;
+        libportaudio*) f=portaudio ;;
+        libreadline*) f=readline ;;
+        libmp3lame*) f=lame ;;
+        libwavpack*) f=wavpack ;;
+        libsndfile*) f=libsndfile ;;
+        libopusfile*) f=opusfile ;;
+        libgme*) f=game-music-emu ;;
+        libopus*) f=opus ;;
+        *) echo Warning: no licence mapping for $name; continue ;;
+    esac
+    found=no
+    for lic in `find /opt/homebrew/opt/$f/ -maxdepth 1 -type f \( -iname 'LICENSE*' -o -iname 'COPYING*' \) 2>/dev/null`; do
+        cp "$lic" $LICDIR/$f-`basename "$lic"`
+        found=yes
+    done
+    [ $found = yes ] || echo Warning: no licence file found for $f \(see THIRD-PARTY.txt\)
+done
+cat > $LICDIR/THIRD-PARTY.txt <<'THIRDPARTY'
+Third-party components in this bundle (Contents/libs and Contents/Resources)
+
+  SDL2 (sdl2-compat), SDL3, SDL2_mixer   zlib licence       https://libsdl.org
+  libsamplerate                          BSD-2-Clause       https://github.com/libsndfile/libsamplerate
+  FluidSynth (built without readline)    LGPL-2.1-or-later  https://www.fluidsynth.org
+  libogg, libvorbis, opus, opusfile      BSD-3-Clause       https://xiph.org
+  FLAC                                   BSD-3-Clause (library), GPL-2+ (tools)  https://xiph.org/flac/
+  mpg123                                 LGPL-2.1           https://www.mpg123.de
+  libxmp                                 LGPL-2.1-or-later  https://xmp.sourceforge.net
+  game-music-emu                         LGPL-2.1-or-later  https://github.com/libgme/game-music-emu
+  WavPack                                BSD-3-Clause       https://www.wavpack.com
+  TimGM6mb.sf2 (SoundFont)               GPL-2              Tim Brechbill, David Bolton (MuseScore 1.3)
+
+The licence texts shipped by the respective packages are in this folder. Only the
+libraries actually present in Contents/libs apply to this build. 1oom itself is GPL-2
+(1oom-COPYING.txt). The Master of Orion game files are not included.
+THIRDPARTY
+
 # General MIDI SoundFont for the music (see soundfont/README.md).
 mkdir -p $APP/Contents/Resources
 cp $TOPSRCDIR/soundfont/TimGM6mb.sf2 $APP/Contents/Resources/TimGM6mb.sf2

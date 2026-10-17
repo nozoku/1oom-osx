@@ -20,6 +20,68 @@ Please read before using or contributing:
   David Bolton (GPLv2, from MuseScore 1.3) so that the MIDI music plays; see [soundfont/README.md](soundfont/README.md).
 - The original README, acknowledgements and the GPLv2 licence ([COPYING](COPYING)) follow unchanged.
 
+Installing on macOS
+-------------------
+
+Requirements: a Mac with Apple Silicon (arm64), macOS 11 or newer, and your own copy of Master of
+Orion v1.3 (for example the Steam release).
+
+1. Download `1oom-<version>-macos-arm64.zip` from the [Releases](https://github.com/nozoku/1oom-osx/releases)
+   page and unpack it. Put the folder wherever you like (for example `~/Applications/1oom`).
+2. First start: right-click `1oom.app` and choose **Open**, then confirm. The app is not signed with an
+   Apple Developer ID, so macOS asks once. Afterwards a normal double-click works.
+3. Game files: if the Steam release of *Master of Orion 1* is installed, 1oom finds its files on its own.
+   Otherwise a folder dialog asks for the folder that contains the game's `*.LBX` files (it must be the
+   v1.3 data; `v11.lbx` must be present). The choice is saved in the configuration.
+4. Saved games, the configuration and the log live in `data/` next to `1oom.app`. Nothing is written into
+   the game folder or into system directories. Delete `data/` to start fresh.
+
+Using
+-----
+
+- Controls, options and the in-game menus are documented in [doc/usage_classic.txt](doc/usage_classic.txt)
+  and [doc/usage_common.txt](doc/usage_common.txt). Music plays in the intro, the main menu, battles,
+  the council and other scenes; the star map is silent, as in the original.
+- Command-line options can be appended when starting the launcher from a terminal:
+  `1oom.app/Contents/MacOS/1oom -data /path/to/moo1` (other game folder),
+  `-user /path` (other folder for saves and config), `-nomusic`, `-musicvol 0..128`,
+  `-sdlmixersf FILE.sf2` (another SoundFont).
+- The `data/1oom_log.txt` file is the first place to look when something does not work.
+- Building from source: `brew install autoconf automake pkg-config sdl2_mixer libsamplerate cmake dylibbundler`,
+  then `autoreconf -fi`, configure as described in [COMPILING](COMPILING) (on macOS add
+  `--disable-hwalleg4` and the Homebrew include/lib paths), `make`, then in the build directory
+  `sh ../build-deps_macos.sh` (builds FluidSynth without readline) and `make bindist` to produce the
+  `.app` bundle (`make-bindist_macos.sh`).
+
+Bundled libraries and licences
+------------------------------
+
+`1oom.app/Contents/libs` contains the libraries below; their licence texts are in
+`1oom.app/Contents/Resources/licenses`. 1oom itself is GPLv2. The Master of Orion game files are not
+included.
+
+| Component | Version | Licence | Homepage |
+|---|---|---|---|
+| SDL2 (sdl2-compat) | 2.32.74 | zlib | https://github.com/libsdl-org/sdl2-compat |
+| SDL3 | 3.4.18 | zlib | https://libsdl.org |
+| SDL2_mixer | 2.8.2 | zlib | https://github.com/libsdl-org/SDL_mixer |
+| libsamplerate | 0.2.2 | BSD-2-Clause | https://github.com/libsndfile/libsamplerate |
+| FluidSynth (built from source without readline, libsndfile and audio drivers) | 2.6.1 | LGPL-2.1-or-later | https://www.fluidsynth.org |
+| FLAC | 1.5.0 | BSD-3-Clause (library) | https://xiph.org/flac/ |
+| libogg | 1.3.6 | BSD-3-Clause | https://www.xiph.org/ogg/ |
+| libvorbis | 1.3.7 | BSD-3-Clause | https://xiph.org/vorbis/ |
+| opus | 1.6.1 | BSD-3-Clause | https://www.opus-codec.org/ |
+| opusfile | 0.12 | BSD-3-Clause | https://www.opus-codec.org/ |
+| mpg123 | 1.33.7 | LGPL-2.1-only | https://www.mpg123.de/ |
+| libxmp | 4.7.4 | LGPL-2.1-or-later | https://xmp.sourceforge.net/ |
+| game-music-emu | 0.6.5 | LGPL-2.1-or-later | https://github.com/libgme/game-music-emu |
+| WavPack | 5.9.0 | BSD-3-Clause | https://www.wavpack.com/ |
+| TimGM6mb.sf2 (SoundFont) | MuseScore 1.3 | GPL-2 | see [soundfont/README.md](soundfont/README.md) |
+
+The audio codec libraries come with SDL2_mixer from Homebrew; 1oom only uses the MIDI path
+(FluidSynth with the bundled SoundFont). The Homebrew build of FluidSynth links readline (GPL-3), which
+is not compatible with GPLv2, so the bundle uses a FluidSynth built by `build-deps_macos.sh` instead.
+
 ---
 
 Upstream README
