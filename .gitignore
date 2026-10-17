@@ -22,3 +22,4 @@ localtest/
 # macOS and local assistant files (never committed)
 .DS_Store
 .claude/settings.local.json
+configure~

@@ -535,7 +535,10 @@ elif test x"$is_msdos" = "xyes"; then
 else
     OS_DIR="\$(top_builddir)/src/os/unix"
     OS_SRC_DIR="\$(top_srcdir)/src/os/unix"
-    BINDIST_SCRIPT="\$(top_srcdir)/make-bindist_install.sh"
+    case "$host_os" in
+        darwin*) BINDIST_SCRIPT="\$(top_srcdir)/make-bindist_macos.sh" ;;
+        *) BINDIST_SCRIPT="\$(top_srcdir)/make-bindist_install.sh" ;;
+    esac
     AM_CONDITIONAL(COMPILE_UNIX, true)
     AM_CONDITIONAL(COMPILE_WIN32, false)
     AM_CONDITIONAL(COMPILE_MSDOS, false)
