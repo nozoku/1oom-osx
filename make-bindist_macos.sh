@@ -58,8 +58,13 @@ if [ -e $APP/Contents/libs/libSDL2-2.0.0.dylib ] && [ ! -e $APP/Contents/libs/li
     fi
 fi
 
+# General MIDI SoundFont for the music (see soundfont/README.md).
+mkdir -p $APP/Contents/Resources
+cp $TOPSRCDIR/soundfont/TimGM6mb.sf2 $APP/Contents/Resources/TimGM6mb.sf2
+
 # Launcher: user files go to data/ next to the .app; the game data folder is
-# asked for once and then stored by 1oom in its config file.
+# asked for once and then stored by 1oom in its config file; the bundled
+# SoundFont is used unless the config names its own (sdlmixersf).
 cat > $APP/Contents/MacOS/1oom <<'LAUNCHER'
 #!/bin/sh
 HERE=$(cd "$(dirname "$0")" && pwd)
@@ -67,17 +72,26 @@ APPDIR=$(cd "$HERE/../../.." && pwd)
 USERDIR="$APPDIR/data"
 mkdir -p "$USERDIR"
 CFG="$USERDIR/1oom_config_game_classic_sdl2.txt"
-DATAOPT=""
+DATADIR=""
+STEAMDIR="$HOME/Library/Application Support/Steam/steamapps/common/Master of Orion 1/Master Of Orion.app/Contents/Resources/Master Of Orion.boxer/C.harddisk"
 if ! grep -q '^opt.data_path = ' "$CFG" 2>/dev/null; then
-    DATADIR=`osascript -e 'POSIX path of (choose folder with prompt "Select the folder with the Master of Orion (v1.3) files (*.LBX)")' 2>/dev/null`
-    if [ -z "$DATADIR" ]; then
-        exit 0
+    if [ -e "$STEAMDIR/v11.lbx" ]; then
+        DATADIR="$STEAMDIR"
+    else
+        DATADIR=`osascript -e 'POSIX path of (choose folder with prompt "Select the folder with the Master of Orion (v1.3) files (*.LBX)")' 2>/dev/null`
+        if [ -z "$DATADIR" ]; then
+            exit 0
+        fi
     fi
-    DATAOPT="-data ${DATADIR%/}"
+    DATADIR="${DATADIR%/}"
+fi
+if ! grep -qE '^[a-z.]*sdlmixersf = ' "$CFG" 2>/dev/null; then
+    SDL_SOUNDFONTS="$HERE/../Resources/TimGM6mb.sf2"
+    export SDL_SOUNDFONTS
 fi
 cd "$USERDIR"
-if [ -n "$DATAOPT" ]; then
-    exec "$HERE/1oom_classic_sdl2" -user "$USERDIR" $DATAOPT "$@"
+if [ -n "$DATADIR" ]; then
+    exec "$HERE/1oom_classic_sdl2" -user "$USERDIR" -data "$DATADIR" "$@"
 else
     exec "$HERE/1oom_classic_sdl2" -user "$USERDIR" "$@"
 fi

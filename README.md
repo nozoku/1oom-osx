@@ -16,6 +16,8 @@ Please read before using or contributing:
   files (`*.LBX` etc.) are copyrighted by MicroProse and are **not** part of this repository, of any
   release, `.app` bundle or ZIP from it. You must own a legal copy (for example the Steam release) and
   point 1oom at its folder with `-data <path>`.
+- **Music.** The macOS bundle ships the General MIDI SoundFont `TimGM6mb.sf2` by Tim Brechbill and
+  David Bolton (GPLv2, from MuseScore 1.3) so that the MIDI music plays; see [soundfont/README.md](soundfont/README.md).
 - The original README, acknowledgements and the GPLv2 licence ([COPYING](COPYING)) follow unchanged.
 
 ---

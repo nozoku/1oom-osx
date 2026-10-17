@@ -12,4 +12,5 @@ EXTRA_DIST = \
     make-bindist_macos.sh \
     make-bindist_msdos.sh \
     make-bindist_win32.sh \
+    soundfont/README.md soundfont/TimGM6mb.sf2 \
     .gitignore
